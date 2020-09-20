@@ -309,7 +309,7 @@
     </string-array>
 
     <!-- SystemUI vender service, used in config_systemUIServiceComponents. -->
-    <string name="config_systemUIVendorServiceComponent" translatable="false">com.android.systemui.VendorServices</string>
+    <string name="config_systemUIVendorServiceComponent" translatable="false">com.android.systemui.elmyra.ElmyraService</string>
 
     <!-- SystemUI Services (per user): The classes of the stuff to start for each user. This is a subset of the config_systemUIServiceComponents -->
     <string-array name="config_systemUIServiceComponentsPerUser" translatable="false">

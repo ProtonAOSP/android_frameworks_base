@@ -268,6 +268,8 @@
 
     <!-- Elmyra -->
     <uses-permission android:name="android.permission.ACCESS_CONTEXT_HUB" />
+    <permission android:name="com.google.sensor.elmyra.permission.USE_RAW_SENSOR" android:protectionLevel="preinstalled|signature"/>
+    <uses-permission android:name="com.google.sensor.elmyra.permission.USE_RAW_SENSOR"/>
 
     <protected-broadcast android:name="com.android.settingslib.action.REGISTER_SLICE_RECEIVER" />
     <protected-broadcast android:name="com.android.settingslib.action.UNREGISTER_SLICE_RECEIVER" />

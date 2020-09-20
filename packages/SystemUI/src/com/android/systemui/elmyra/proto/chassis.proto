@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package com.android.systemui.elmyra.proto;
+
+import "frameworks/base/packages/SystemUI/src/com/android/systemui/elmyra/proto/filter.proto";
+
+option java_outer_classname = "ChassisProtos";
+option java_package = "com.android.systemui.elmyra.proto";
+
+message Sensor {
+    uint32 source = 1;
+    int32 gain = 2;
+    float sensitivity = 3;
+    repeated Filter filters = 4;
+}
+
+message Chassis {
+    repeated Sensor sensors = 1;
+    repeated Filter default_filters = 2;
+}
+
+message SensorEvent {
+    uint64 timestamp = 1;
+    repeated float values = 2;
+}

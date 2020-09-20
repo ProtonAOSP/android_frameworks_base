@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package com.android.systemui.elmyra.proto;
+
+option java_outer_classname = "ElmyraFilters";
+option java_package = "com.android.systemui.elmyra.proto";
+
+message FIRFilter {
+    repeated float coefficients = 1;
+}
+
+message HighpassFilter {
+    float cutoff = 1;
+    float rate = 2;
+}
+
+message LowpassFilter {
+    float cutoff = 1;
+    float rate = 2;
+}
+
+message MedianFilter {
+    uint32 window_size = 1;
+}
+
+message Filter {
+    oneof parameters {
+        FIRFilter fir = 1;
+        HighpassFilter highpass = 2;
+        LowpassFilter lowpass = 3;
+        MedianFilter median = 4;
+    }
+}

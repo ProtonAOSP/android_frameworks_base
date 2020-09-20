@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package com.android.systemui.elmyra.proto;
+
+import "frameworks/base/packages/SystemUI/src/com/android/systemui/elmyra/proto/gesture_detector.proto";
+import "frameworks/base/packages/SystemUI/src/com/android/systemui/elmyra/proto/chassis.proto";
+
+option java_outer_classname = "ContextHubMessages";
+option java_package = "com.android.systemui.elmyra.proto";
+
+message NanoappConfig {
+    Chassis chassis = 1;
+    uint32 sampling_interval = 2;
+    DetectorSetup detector_setup = 3;
+}
+
+message RecognizerStart {
+    // Minimum gesture progress threshold for reporting events to AP
+    float progress_report_threshold = 1;
+    // Gesture trigger sensitivty (1.0 scale)
+    float sensitivity = 2;
+}
+
+message SensitivityUpdate {
+    float sensitivity = 1;
+}
+
+message GestureProgress {
+    float progress = 1;
+}
+
+message GestureDetected {
+    bool host_suspended = 1;
+    bool haptic_consumed = 2;
+}
+
+enum MessageType {
+    UNDEFINED = 0;
+    NANOAPP_LOADED = 1;
+    NANOAPP_CONFIG = 100;
+    RECOGNIZER_START = 200;
+    RECOGNIZER_STOP = 201;
+    SENSITIVITY_UPDATE = 202;
+    SNAPSHOT_REQUEST = 203;
+    CHASSIS_REQUEST = 204;
+    GRAB_RECOGNIZER_START = 205;
+    GRAB_RECOGNIZER_STOP = 206;
+    GESTURE_PROGRESS = 300;
+    GESTURE_DETECTED = 301;
+    SNAPSHOT_RESPONSE = 302;
+    CHASSIS_RESPONSE = 303;
+    GRAB_DETECTED = 304;
+    GRAB_RELEASED = 305;
+}

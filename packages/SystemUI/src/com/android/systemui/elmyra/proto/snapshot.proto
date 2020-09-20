@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package com.android.systemui.elmyra.proto;
+
+import "frameworks/base/packages/SystemUI/src/com/android/systemui/elmyra/proto/chassis.proto";
+
+option java_outer_classname = "SnapshotProtos";
+option java_package = "com.android.systemui.elmyra.proto";
+
+message SnapshotHeader {
+    int64 identifier = 1;
+    
+    GestureType gesture_type = 2;
+    enum GestureType {
+        UNKNOWN = 0;
+        GESTURE_DETECTED = 1;
+        PRIMED_NO_GESTURE = 2;
+        PROGRESS_NO_PRIME = 3;
+        WESTWORLD_REQUEST = 4;
+    }
+    
+    OPAFeedback feedback = 3;
+    enum OPAFeedback {
+        OPA_UNKNOWN = 0;
+        OPA_ELMYRA_QUERY_SUBMITTED = 1;
+        OPA_ELMYRA_NO_QUERY_SUBMITTED = 2;
+    }
+}
+
+message Snapshot {
+    SnapshotHeader header = 1;
+    repeated Event events = 2;
+    float sensitivity_setting = 3;
+}
+
+message Snapshots {
+    repeated Snapshot snapshots = 1;
+}
+
+message Event {
+    oneof types {
+        SensorEvent sensor_event = 1;
+        GestureStage gesture_stage = 2;
+    }
+    
+    enum GestureStage {
+        UNKNOWN = 0;
+        NONE = 1;
+        PROGRESS = 2;
+        PRIMED = 3;
+        DETECTED = 4;
+    }
+}

@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package com.android.systemui.elmyra.proto;
+
+option java_package = "com.android.systemui.elmyra.proto";
+
+message DetectorId {
+    uint32 value = 1;
+}
+
+message DetectorSetup {
+    DetectorId root = 1;
+    repeated MultiChannelDetector detectors = 2;
+    float min_sensitivity = 3;
+    float max_sensitivity = 4;
+    float min_upper_threshold = 5;
+    float max_upper_threshold = 6;
+    float min_lower_threshold = 7;
+    float max_lower_threshold = 8;
+    float min_time_threshold = 9;
+    float max_time_threshold = 10;
+    float global_sensitivity = 11;
+}
+
+message SlopeDetector {
+    reserved 1, 2, 3, 4, 5;
+}
+
+message AggregateDetector {
+    repeated DetectorId detectors = 1;
+}
+
+message AggregateDetectorBuilder {
+    uint32 count = 1;
+    
+    oneof detector {
+        SingleChannelDetector single = 2;
+        DetectorId multi = 3;
+    }
+}
+
+message SingleChannelDetector {
+    oneof detector {
+        SlopeDetector slope = 2;
+    }
+}
+
+message SingleChannelAdapter {
+    uint32 source = 1;
+    SingleChannelDetector detector = 2;
+}
+
+message ModelBasedDetector {
+    float decision_threshold_min = 1;
+    float decision_threshold_max = 2;
+    repeated float weights = 3;
+    repeated float normalizing_means = 4;
+    repeated float normalizing_stds = 5;
+    float intercept = 6;
+    uint32 window_length = 7;
+    uint32 window_step = 8;
+    uint32 num_features = 9;
+    uint32 sample_latency = 10;
+    float model_based_peak_threshold_min = 11;
+    float model_based_peak_threshold_max = 12;
+}
+
+message MultiChannelDetector {
+    DetectorId id = 1;
+    
+    oneof detector {
+        AggregateDetector aggregate = 2;
+        AggregateDetectorBuilder aggregate_builder = 3;
+        SingleChannelAdapter adapter = 4;
+        ModelBasedDetector model_based_detector = 5;
+    }
+}

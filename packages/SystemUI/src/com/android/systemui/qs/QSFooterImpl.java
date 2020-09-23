@@ -23,7 +23,6 @@ import static com.android.systemui.util.InjectionInflationController.VIEW_CONTEX
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.ContentObserver;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
@@ -101,15 +100,6 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
 
     private OnClickListener mExpandClickListener;
 
-    private final ContentObserver mDeveloperSettingsObserver = new ContentObserver(
-            new Handler(mContext.getMainLooper())) {
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            super.onChange(selfChange, uri);
-            setBuildText();
-        }
-    };
-
     @Inject
     public QSFooterImpl(@Named(VIEW_CONTEXT) Context context, AttributeSet attrs,
             ActivityStarter activityStarter, UserInfoController userInfoController,
@@ -158,21 +148,6 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
                 oldBottom) -> updateAnimator(right - left));
         setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
         updateEverything();
-        setBuildText();
-    }
-
-    private void setBuildText() {
-        TextView v = findViewById(R.id.build);
-        if (v == null) return;
-        if (DevelopmentSettingsEnabler.isDevelopmentSettingsEnabled(mContext)) {
-            v.setText(mContext.getString(
-                    com.android.internal.R.string.bugreport_status,
-                    Build.VERSION.RELEASE_OR_CODENAME,
-                    Build.ID));
-            v.setVisibility(View.VISIBLE);
-        } else {
-            v.setVisibility(View.GONE);
-        }
     }
 
     private void updateAnimator(int width) {
@@ -250,18 +225,9 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
     }
 
     @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        mContext.getContentResolver().registerContentObserver(
-                Settings.Global.getUriFor(Settings.Global.DEVELOPMENT_SETTINGS_ENABLED), false,
-                mDeveloperSettingsObserver, UserHandle.USER_ALL);
-    }
-
-    @Override
     @VisibleForTesting
     public void onDetachedFromWindow() {
         setListening(false);
-        mContext.getContentResolver().unregisterContentObserver(mDeveloperSettingsObserver);
         super.onDetachedFromWindow();
     }
 

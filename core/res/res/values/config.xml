@@ -2776,6 +2776,7 @@
         <item>power</item>
         <item>restart</item>
         <item>logout</item>
+        <item>screenshot</item>
         <item>bugreport</item>
     </string-array>
 
@@ -3479,6 +3480,7 @@
      mode -->
     <string-array translatable="false" name="config_priorityOnlyDndExemptPackages">
         <item>com.android.dialer</item>
+        <item>com.android.server.telecom</item>
         <item>com.android.systemui</item>
         <item>android</item>
     </string-array>

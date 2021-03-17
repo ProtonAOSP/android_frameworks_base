@@ -1051,7 +1051,7 @@ public class Build {
      * partitions, so we might derive the fingerprint at runtime.
      */
     private static String deriveFingerprint() {
-        String finger = SystemProperties.get("ro.build.fingerprint");
+        String finger = SystemProperties.get("ro.build.real_fingerprint");
         if (TextUtils.isEmpty(finger)) {
             finger = getString("ro.product.brand") + '/' +
                     getString("ro.product.name") + '/' +

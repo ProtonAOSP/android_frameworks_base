@@ -24,7 +24,7 @@ import android.util.ArraySet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 
 import com.android.systemui.Dependency;
 import com.android.systemui.R;
@@ -148,7 +148,7 @@ public class BrightnessMirrorController
     }
 
     private void updateIcon() {
-        ImageView iv = mBrightnessMirror.findViewById(R.id.brightness_icon);
+        ImageButton iv = mBrightnessMirror.findViewById(R.id.brightness_icon);
         boolean autoBrightnessAvailable = mBrightnessMirror.getContext().getResources().getBoolean(
                 com.android.internal.R.bool.config_automatic_brightness_available);
         if (autoBrightnessAvailable) {

@@ -30,12 +30,13 @@
         android:importantForAccessibility="no"
         systemui:text="@string/status_bar_settings_auto_brightness_label" />
 
+    <!-- 12dp marginEnd = 24dp total margin - (+24dp button width) / 2 (center) -->
     <ImageButton
         android:id="@+id/brightness_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center_vertical"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="12dp"
         android:src="@drawable/ic_qs_brightness_auto_off"
         android:tint="?android:attr/colorForeground"
         android:background="?android:attr/selectableItemBackgroundBorderless"

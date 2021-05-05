@@ -25,7 +25,6 @@ import android.net.Credentials;
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.net.NetworkUtils;
-import android.os.Build;
 import android.os.FactoryTest;
 import android.os.IVold;
 import android.os.Process;
@@ -46,7 +45,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 /** @hide */
 public final class Zygote {
@@ -287,9 +285,6 @@ public final class Zygote {
      * @hide for internal use only
      */
     public static final String USAP_POOL_SECONDARY_SOCKET_NAME = "usap_pool_secondary";
-
-    private static final boolean PRODUCT_NEEDS_MODEL_EDIT =
-            SystemProperties.getBoolean("ro.product.needs_model_edit", false);
 
     private Zygote() {}
 
@@ -849,46 +844,6 @@ public final class Zygote {
 
     private static native void nativeBoostUsapPriority();
 
-    private static void setBuildField(String loggingTag, String key, String value) {
-        /*
-         * This would be much prettier if we just removed "final" from the Build fields,
-         * but that requires changing the API.
-         *
-         * While this an awful hack, it's technically safe because the fields are
-         * populated at runtime.
-         */
-        try {
-            // Unlock
-            Field field = Build.class.getDeclaredField(key);
-            field.setAccessible(true);
-
-            // Edit
-            field.set(null, value);
-
-            // Lock
-            field.setAccessible(false);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.e(loggingTag, "Failed to spoof Build." + key, e);
-        }
-    }
-
-    private static void maybeSpoofBuild(String packageName, String loggingTag) {
-        // Set device model to defy NGA in Google Assistant
-        if (PRODUCT_NEEDS_MODEL_EDIT &&
-                packageName != null &&
-                packageName.startsWith("com.google.android.googlequicksearchbox")) {
-            setBuildField(loggingTag, "MODEL", "Pixel 3 XL");
-        }
-
-        // Set fingerprint to make SafetyNet pass
-        String stockFp = SystemProperties.get("ro.build.stock_fingerprint");
-        if (stockFp != null &&
-                packageName != null &&
-                packageName.startsWith("com.google.android.gms")) {
-            setBuildField(loggingTag, "FINGERPRINT", stockFp);
-        }
-    }
-
     static void setAppProcessName(ZygoteArguments args, String loggingTag) {
         if (args.mNiceName != null) {
             Process.setArgV0(args.mNiceName);
@@ -897,8 +852,6 @@ public final class Zygote {
         } else {
             Log.w(loggingTag, "Unable to set package name.");
         }
-
-        maybeSpoofBuild(args.mPackageName, loggingTag);
     }
 
     private static final String USAP_ERROR_PREFIX = "Invalid command to USAP: ";

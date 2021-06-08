@@ -111,6 +111,20 @@
     <alias name="source-sans-pro-semi-bold" to="source-sans-pro" weight="600" />
 
     <!-- fallback fonts -->
+    <family>
+        <font weight="100" style="normal">RobotoFallback-Thin.ttf</font>
+        <font weight="100" style="italic">RobotoFallback-ThinItalic.ttf</font>
+        <font weight="300" style="normal">RobotoFallback-Light.ttf</font>
+        <font weight="300" style="italic">RobotoFallback-LightItalic.ttf</font>
+        <font weight="400" style="normal">RobotoFallback-Regular.ttf</font>
+        <font weight="400" style="italic">RobotoFallback-Italic.ttf</font>
+        <font weight="500" style="normal">RobotoFallback-Medium.ttf</font>
+        <font weight="500" style="italic">RobotoFallback-MediumItalic.ttf</font>
+        <font weight="900" style="normal">RobotoFallback-Black.ttf</font>
+        <font weight="900" style="italic">RobotoFallback-BlackItalic.ttf</font>
+        <font weight="700" style="normal">RobotoFallback-Bold.ttf</font>
+        <font weight="700" style="italic">RobotoFallback-BoldItalic.ttf</font>
+    </family>
     <family lang="und-Arab" variant="elegant">
         <font weight="400" style="normal">NotoNaskhArabic-Regular.ttf</font>
         <font weight="700" style="normal">NotoNaskhArabic-Bold.ttf</font>

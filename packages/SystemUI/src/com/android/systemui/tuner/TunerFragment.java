@@ -51,6 +51,9 @@ public class TunerFragment extends PreferenceFragment {
             "nav_bar",
             "lockscreen",
             "picture_in_picture",
+            "volume_and_do_not_disturb",
+            "doze",
+            KEY_PLUGINS,
     };
 
     private static final int MENU_REMOVE = Menu.FIRST + 1;

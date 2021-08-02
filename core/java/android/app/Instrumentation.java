@@ -1164,6 +1164,7 @@ public class Instrumentation {
         Application app = getFactory(context.getPackageName())
                 .instantiateApplication(cl, className);
         app.attach(context);
+        GmsHooks.initApplicationBeforeOnCreate(app);
         maybeSpoofBuild(app);
         return app;
     }
@@ -1182,6 +1183,7 @@ public class Instrumentation {
             ClassNotFoundException {
         Application app = (Application)clazz.newInstance();
         app.attach(context);
+        GmsHooks.initApplicationBeforeOnCreate(app);
         maybeSpoofBuild(app);
         return app;
     }
@@ -1238,7 +1240,6 @@ public class Instrumentation {
      * @param app The application being created.
      */
     public void callApplicationOnCreate(Application app) {
-        GmsHooks.initApplicationBeforeOnCreate(app);
         app.onCreate();
     }
     

@@ -572,7 +572,8 @@ public class AppsFilter {
                         || newPkg.isForceQueryable()
                         || newPkgSetting.forceQueryableOverride
                         || GmsCompat.isGmsApp(newPkg.getPackageName(),
-                            newPkg.getSigningDetails().signatures, newPkg.isPrivileged())
+                            newPkg.getSigningDetails().signatures, newPkg.isPrivileged(),
+                            newPkgSetting.sharedUser != null ? newPkgSetting.sharedUser.name : null)
                         || (newPkgSetting.isSystem() && (mSystemAppsQueryable
                         || ArrayUtils.contains(mForceQueryableByDevicePackageNames,
                         newPkg.getPackageName())));

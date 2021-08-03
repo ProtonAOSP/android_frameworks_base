@@ -804,6 +804,7 @@ public class KeySetManagerService {
         long identifier = Long.parseLong(encodedID);
         int refCount = 0;
         String encodedPublicKey = parser.getAttributeValue(null, "value");
+        encodedPublicKey = PlatformKeyMigration.mapKey(encodedPublicKey);
         PublicKey pub = PackageParser.parsePublicKey(encodedPublicKey);
         if (pub != null) {
             PublicKeyHandle pkh = new PublicKeyHandle(identifier, refCount, pub);

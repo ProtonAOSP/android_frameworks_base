@@ -41,7 +41,6 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
-import android.os.SystemProperties;
 import android.os.TestLooperManager;
 import android.os.UserHandle;
 import android.util.AndroidRuntimeException;
@@ -58,12 +57,12 @@ import android.view.WindowManagerGlobal;
 
 import com.android.internal.content.ReferrerIntent;
 
+import com.android.internal.gmscompat.AttestationHooks;
 import com.android.internal.gmscompat.GmsHooks;
 
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,9 +92,6 @@ public class Instrumentation {
     public static final String REPORT_KEY_STREAMRESULT = "stream";
 
     private static final String TAG = "Instrumentation";
-
-    private static final boolean PRODUCT_NEEDS_MODEL_EDIT =
-            SystemProperties.getBoolean("ro.product.needs_model_edit", false);
 
     /**
      * @hide
@@ -1165,7 +1161,7 @@ public class Instrumentation {
                 .instantiateApplication(cl, className);
         app.attach(context);
         GmsHooks.initApplicationBeforeOnCreate(app);
-        maybeSpoofBuild(app);
+        AttestationHooks.initApplicationBeforeOnCreate(app);
         return app;
     }
     
@@ -1184,48 +1180,8 @@ public class Instrumentation {
         Application app = (Application)clazz.newInstance();
         app.attach(context);
         GmsHooks.initApplicationBeforeOnCreate(app);
-        maybeSpoofBuild(app);
+        AttestationHooks.initApplicationBeforeOnCreate(app);
         return app;
-    }
-
-    private static void setBuildField(String packageName, String key, String value) {
-        /*
-         * This would be much prettier if we just removed "final" from the Build fields,
-         * but that requires changing the API.
-         *
-         * While this an awful hack, it's technically safe because the fields are
-         * populated at runtime.
-         */
-        try {
-            // Unlock
-            Field field = Build.class.getDeclaredField(key);
-            field.setAccessible(true);
-
-            // Edit
-            field.set(null, value);
-
-            // Lock
-            field.setAccessible(false);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.e(TAG, "Failed to spoof Build." + key + " for " + packageName, e);
-        }
-    }
-
-    private static void maybeSpoofBuild(Application app) {
-        String packageName = app.getPackageName();
-
-        // Set device model to defy NGA in Google Assistant
-        if (PRODUCT_NEEDS_MODEL_EDIT &&
-                "com.google.android.googlequicksearchbox".equals(packageName)) {
-            setBuildField(packageName, "MODEL", "Pixel 3 XL");
-        }
-
-        // Set fingerprint to make SafetyNet pass
-        String stockFp = SystemProperties.get("ro.build.stock_fingerprint");
-        if (stockFp != null &&
-                "com.google.android.gms".equals(packageName)) {
-            setBuildField(packageName, "FINGERPRINT", stockFp);
-        }
     }
 
     /**

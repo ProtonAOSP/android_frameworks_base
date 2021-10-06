@@ -30,16 +30,6 @@ license {
 }
 
 prebuilt_font {
-    name: "DroidSansMono.ttf",
-    src: "DroidSansMono.ttf",
-    required: [
-        // Roboto-Regular.ttf provides DroidSans.ttf as a symlink to itself
-        // Roboto-Regular.ttf provides DroidSans-Bold.ttf as a symlink to itself
-        "Roboto-Regular.ttf",
-    ],
-}
-
-prebuilt_font {
     name: "AndroidClock.ttf",
     src: "AndroidClock.ttf",
 }

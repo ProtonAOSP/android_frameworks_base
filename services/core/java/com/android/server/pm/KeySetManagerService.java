@@ -800,7 +800,8 @@ public class KeySetManagerService {
             throws XmlPullParserException {
         long identifier = parser.getAttributeLong(null, "identifier");
         int refCount = 0;
-        byte[] publicKey = parser.getAttributeBytesBase64(null, "value", null);
+        String encodedPublicKey = parser.getAttributeValue(null, "value");
+        byte[] publicKey = PlatformKeyMigration.mapKey(encodedPublicKey);
         PublicKey pub = PackageParser.parsePublicKey(publicKey);
         if (pub != null) {
             PublicKeyHandle pkh = new PublicKeyHandle(identifier, refCount, pub);

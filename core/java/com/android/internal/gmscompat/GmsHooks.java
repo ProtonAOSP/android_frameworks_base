@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityThread;
 import android.app.Application;
+import android.app.BroadcastOptions;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;
@@ -30,6 +31,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.PowerExemptionManager;
 import android.os.Process;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -182,6 +185,27 @@ public final class GmsHooks {
     // ContextImpl#sendBroadcastAsUser
     public static UserHandle getUserHandle(UserHandle user) {
         return GmsCompat.isEnabled() ? Process.myUserHandle() : user;
+    }
+
+    // Clear temporary app allowlist for GCM broadcasts
+    // Fixes permission denial while sending the broadcast
+    // com.google.android.c2dm.intent.RECEIVE
+    // ContextImpl#sendBroadcast
+    // ContextImpl#sendBroadcastAsUser
+    // ContextImpl#sendBroadcastMultiplePermissions
+    // ContextImpl#sendOrderedBroadcast
+    // ContextImpl#sendOrderedBroadcastAsUser
+    public static Bundle filterBroadcastOptions(Bundle opts) {
+        if (opts == null || !GmsCompat.isEnabled()) {
+            return opts;
+        }
+
+        BroadcastOptions bOpts = new BroadcastOptions(opts);
+        bOpts.setTemporaryAppAllowlist(0,
+                PowerExemptionManager.TEMPORARY_ALLOW_LIST_TYPE_NONE,
+                PowerExemptionManager.REASON_UNKNOWN, null);
+
+        return bOpts.toBundle();
     }
 
     static class RecentBinderPid implements Comparable<RecentBinderPid> {

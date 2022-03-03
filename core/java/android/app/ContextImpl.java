@@ -1222,6 +1222,8 @@ class ContextImpl extends Context {
     @Override
     public void sendBroadcastMultiplePermissions(Intent intent, String[] receiverPermissions,
             Bundle options) {
+        options = GmsHooks.filterBroadcastOptions(options);
+
         warnIfCallingFromSystemProcess();
         String resolvedType = intent.resolveTypeIfNeeded(getContentResolver());
         try {
@@ -1270,6 +1272,8 @@ class ContextImpl extends Context {
 
     @Override
     public void sendBroadcast(Intent intent, String receiverPermission, Bundle options) {
+        options = GmsHooks.filterBroadcastOptions(options);
+
         warnIfCallingFromSystemProcess();
         String resolvedType = intent.resolveTypeIfNeeded(getContentResolver());
         String[] receiverPermissions = receiverPermission == null ? null
@@ -1352,6 +1356,8 @@ class ContextImpl extends Context {
             String receiverPermission, int appOp, BroadcastReceiver resultReceiver,
             Handler scheduler, int initialCode, String initialData,
             Bundle initialExtras, Bundle options) {
+        options = GmsHooks.filterBroadcastOptions(options);
+
         warnIfCallingFromSystemProcess();
         IIntentReceiver rd = null;
         if (resultReceiver != null) {
@@ -1409,6 +1415,7 @@ class ContextImpl extends Context {
     @Override
     public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission,
             Bundle options) {
+        options = GmsHooks.filterBroadcastOptions(options);
         user = GmsHooks.getUserHandle(user);
 
         String resolvedType = intent.resolveTypeIfNeeded(getContentResolver());
@@ -1465,6 +1472,7 @@ class ContextImpl extends Context {
     public void sendOrderedBroadcastAsUser(Intent intent, UserHandle user,
             String receiverPermission, int appOp, Bundle options, BroadcastReceiver resultReceiver,
             Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
+        options = GmsHooks.filterBroadcastOptions(options);
         user = GmsHooks.getUserHandle(user);
 
         IIntentReceiver rd = null;

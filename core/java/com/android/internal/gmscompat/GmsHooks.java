@@ -23,8 +23,10 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityThread;
 import android.app.Application;
+import android.app.BroadcastOptions;
 import android.app.PendingIntent;
 import android.app.compat.gms.GmsCompat;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -33,15 +35,19 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerExemptionManager;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.provider.Downloads;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseArray;
 import android.webkit.WebView;
+
+import com.android.internal.gmscompat.client.ClientPriorityManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,16 +94,6 @@ public final class GmsHooks {
         return false;
     }
 
-    // ApplicationPackageManager#hasSystemFeature(String, int)
-    public static boolean isHiddenSystemFeature(String name) {
-        switch (name) {
-            // checked before accessing privileged UwbManager
-            case "android.hardware.uwb":
-                return true;
-        }
-        return false;
-    }
-
     /**
      * Use the per-app SSAID as a random serial number for SafetyNet. This doesn't necessarily make
      * pass, but at least it retusn a valid "failed" response and stops spamming device key
@@ -113,18 +109,6 @@ public final class GmsHooks {
         String serial = ssaid.toUpperCase();
         Log.d(TAG, "Generating serial number from SSAID: " + serial);
         return serial;
-    }
-
-    // Only get package info for current user
-    // ApplicationPackageManager#getInstalledPackages(int)
-    // ApplicationPackageManager#getPackageInfo(VersionedPackage, int)
-    // ApplicationPackageManager#getPackageInfoAsUser(String, int, int)
-    public static int filterPackageInfoFlags(int flags) {
-        if (GmsCompat.isEnabled()) {
-            // Remove MATCH_ANY_USER flag to avoid permission denial
-            flags &= ~PackageManager.MATCH_ANY_USER;
-        }
-        return flags;
     }
 
     static class RecentBinderPid implements Comparable<RecentBinderPid> {
@@ -233,6 +217,9 @@ public final class GmsHooks {
                 || "icc".equals(authority))
         {
             if (!GmsCompat.hasPermission(Manifest.permission.READ_CONTACTS)) {
+                if (projection == null) {
+                    projection = new String[] { BaseColumns._ID };
+                }
                 return new MatrixCursor(projection);
             }
         }
@@ -320,6 +307,57 @@ public final class GmsHooks {
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             GmsCompat.appContext().startActivity(i);
         }
+    }
+
+    // ContextImpl#sendBroadcast
+    // ContextImpl#sendOrderedBroadcast
+    // ContextImpl#sendBroadcastAsUser
+    // ContextImpl#sendOrderedBroadcastAsUser
+    public static Bundle filterBroadcastOptions(Intent intent, Bundle options) {
+        if (options == null) {
+            return null;
+        }
+
+        String targetPkg = intent.getPackage();
+
+        if (targetPkg == null) {
+            ComponentName cn = intent.getComponent();
+            if (cn != null) {
+                targetPkg = cn.getPackageName();
+            }
+        }
+
+        if (targetPkg == null) {
+            return options;
+        }
+
+        BroadcastOptions bo = new BroadcastOptions(options);
+
+        if (bo.getTemporaryAppAllowlistType() == PowerExemptionManager.TEMPORARY_ALLOW_LIST_TYPE_NONE) {
+            return options;
+        }
+        // handle privileged BroadcastOptions#setTemporaryAppAllowlist() that is used for
+        // high-priority FCM pushes, location updates via PendingIntent,
+        // geofencing and activity detection notifications etc
+
+        long duration = bo.getTemporaryAppAllowlistDuration();
+
+        if (duration <= 0) {
+            return options;
+        }
+
+        if (!targetPkg.equals(GmsInfo.PACKAGE_GMS_CORE)) {
+            Log.d(TAG, "emulating temporary PowerExemptionManager allowlist for " + targetPkg
+                + ", duration: " + duration
+                + ", reason: " + bo.getTemporaryAppAllowlistReason()
+                + ", reasonCode: " + PowerExemptionManager.reasonCodeToString(bo.getTemporaryAppAllowlistReasonCode()));
+
+            ClientPriorityManager.raiseToForeground(targetPkg, duration);
+        }
+
+        bo.setTemporaryAppAllowlist(0, PowerExemptionManager.TEMPORARY_ALLOW_LIST_TYPE_NONE,
+                PowerExemptionManager.REASON_UNKNOWN, null);
+        return bo.toBundle();
     }
 
     private GmsHooks() {}

@@ -44,7 +44,6 @@ import android.util.Log;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.i18n.timezone.ZoneInfoDb;
-import com.android.internal.gmscompat.GmsHooks;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

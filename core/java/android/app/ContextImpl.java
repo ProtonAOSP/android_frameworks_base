@@ -96,6 +96,7 @@ import android.window.WindowTokenClient;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.gmscompat.BinderRedirector;
+import com.android.internal.gmscompat.sysservice.GmcPackageManager;
 import com.android.internal.gmscompat.GmsHooks;
 import com.android.internal.util.Preconditions;
 
@@ -393,7 +394,7 @@ class ContextImpl extends Context {
         final IPackageManager pm = ActivityThread.getPackageManager();
         if (pm != null) {
             // Doesn't matter if we make more than one instance.
-            return (mPackageManager = new ApplicationPackageManager(this, pm));
+            return (mPackageManager = GmsCompat.isEnabled() ? new GmcPackageManager(this, pm) : new ApplicationPackageManager(this, pm));
         }
 
         return null;
@@ -1279,6 +1280,10 @@ class ContextImpl extends Context {
 
     @Override
     public void sendBroadcast(Intent intent, String receiverPermission, Bundle options) {
+        if (GmsCompat.isEnabled()) {
+            options = GmsHooks.filterBroadcastOptions(intent, options);
+        }
+
         warnIfCallingFromSystemProcess();
         String resolvedType = intent.resolveTypeIfNeeded(getContentResolver());
         String[] receiverPermissions = receiverPermission == null ? null
@@ -1361,6 +1366,10 @@ class ContextImpl extends Context {
             String receiverPermission, int appOp, BroadcastReceiver resultReceiver,
             Handler scheduler, int initialCode, String initialData,
             Bundle initialExtras, Bundle options) {
+        if (GmsCompat.isEnabled()) {
+            options = GmsHooks.filterBroadcastOptions(intent, options);
+        }
+
         warnIfCallingFromSystemProcess();
         IIntentReceiver rd = null;
         if (resultReceiver != null) {
@@ -1416,6 +1425,10 @@ class ContextImpl extends Context {
     @Override
     public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission,
             Bundle options) {
+        if (GmsCompat.isEnabled()) {
+            options = GmsHooks.filterBroadcastOptions(intent, options);
+        }
+
         String resolvedType = intent.resolveTypeIfNeeded(getContentResolver());
         String[] receiverPermissions = receiverPermission == null ? null
                 : new String[] {receiverPermission};
@@ -1468,6 +1481,10 @@ class ContextImpl extends Context {
     public void sendOrderedBroadcastAsUser(Intent intent, UserHandle user,
             String receiverPermission, int appOp, Bundle options, BroadcastReceiver resultReceiver,
             Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
+        if (GmsCompat.isEnabled()) {
+            options = GmsHooks.filterBroadcastOptions(intent, options);
+        }
+
         IIntentReceiver rd = null;
         if (resultReceiver != null) {
             if (mPackageInfo != null) {

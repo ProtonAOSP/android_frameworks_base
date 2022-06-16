@@ -37,7 +37,6 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.PropertyInvalidatedCache;
 import android.app.admin.DevicePolicyManager;
-import android.app.compat.gms.GmsCompat;
 import android.compat.annotation.UnsupportedAppUsage;
 import android.content.ComponentName;
 import android.content.Context;
@@ -59,7 +58,6 @@ import android.util.ArraySet;
 import android.view.WindowManager.LayoutParams;
 
 import com.android.internal.R;
-import com.android.internal.gmscompat.GmsUserHooks;
 import com.android.internal.os.RoSystemProperties;
 import com.android.internal.util.FrameworkStatsLog;
 
@@ -1972,11 +1970,6 @@ public class UserManager {
      * @return whether this process is running under the system user.
      */
     public boolean isSystemUser() {
-        if (GmsCompat.isEnabled()) {
-            // com.android.vending: java.lang.IllegalStateException: This method must be called in primary profile
-            return true;
-        }
-
         return UserHandle.myUserId() == UserHandle.USER_SYSTEM;
     }
 
@@ -2605,10 +2598,6 @@ public class UserManager {
     @RequiresPermission(anyOf = {Manifest.permission.MANAGE_USERS,
             Manifest.permission.CREATE_USERS})
     public UserInfo getUserInfo(@UserIdInt int userId) {
-        if (GmsCompat.isEnabled()) {
-            return GmsUserHooks.getUserInfo(userId);
-        }
-
         try {
             return mService.getUserInfo(userId);
         } catch (RemoteException re) {
@@ -2702,11 +2691,6 @@ public class UserManager {
             Manifest.permission.CREATE_USERS})
     public boolean hasBaseUserRestriction(@UserRestrictionKey @NonNull String restrictionKey,
             @NonNull UserHandle userHandle) {
-        if (GmsCompat.isEnabled()) {
-            // Can't ignore device policy restrictions without permission
-            return hasUserRestriction(restrictionKey, userHandle);
-        }
-
         try {
             return mService.hasBaseUserRestriction(restrictionKey, userHandle.getIdentifier());
         } catch (RemoteException re) {
@@ -3504,10 +3488,6 @@ public class UserManager {
     })
     public @NonNull List<UserInfo> getUsers(boolean excludePartial, boolean excludeDying,
             boolean excludePreCreated) {
-        if (GmsCompat.isEnabled()) {
-            return GmsUserHooks.getUsers();
-        }
-
         try {
             return mService.getUsers(excludePartial, excludeDying, excludePreCreated);
         } catch (RemoteException re) {
@@ -3679,10 +3659,6 @@ public class UserManager {
     @RequiresPermission(anyOf = {Manifest.permission.MANAGE_USERS,
             Manifest.permission.CREATE_USERS}, conditional = true)
     public List<UserInfo> getProfiles(@UserIdInt int userId) {
-        if (GmsCompat.isEnabled()) {
-            return GmsUserHooks.getProfiles(userId);
-        }
-
         try {
             return mService.getProfiles(userId, false /* enabledOnly */);
         } catch (RemoteException re) {
@@ -3825,10 +3801,6 @@ public class UserManager {
     @RequiresPermission(anyOf = {Manifest.permission.MANAGE_USERS,
             Manifest.permission.CREATE_USERS}, conditional = true)
     public @NonNull int[] getProfileIds(@UserIdInt int userId, boolean enabledOnly) {
-        if (GmsCompat.isEnabled()) {
-            return GmsUserHooks.getProfileIds(userId);
-        }
-
         try {
             return mService.getProfileIds(userId, enabledOnly);
         } catch (RemoteException re) {
@@ -3885,10 +3857,6 @@ public class UserManager {
             android.Manifest.permission.INTERACT_ACROSS_USERS
     })
     public UserInfo getProfileParent(@UserIdInt int userId) {
-        if (GmsCompat.isEnabled()) {
-            return GmsUserHooks.getProfileParent(userId);
-        }
-
         try {
             return mService.getProfileParent(userId);
         } catch (RemoteException re) {
@@ -4528,10 +4496,6 @@ public class UserManager {
      */
     @UnsupportedAppUsage
     public int getUserSerialNumber(@UserIdInt int userId) {
-        if (GmsCompat.isEnabled()) {
-            return GmsUserHooks.getUserSerialNumber(userId);
-        }
-
         try {
             return mService.getUserSerialNumber(userId);
         } catch (RemoteException re) {
@@ -4550,10 +4514,6 @@ public class UserManager {
      */
     @UnsupportedAppUsage
     public @UserIdInt int getUserHandle(int userSerialNumber) {
-        if (GmsCompat.isEnabled()) {
-            return GmsUserHooks.getUserHandle(userSerialNumber);
-        }
-
         try {
             return mService.getUserHandle(userSerialNumber);
         } catch (RemoteException re) {
